@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.rogerxue.android.selfbalance.module.DynamicPlotable2D;
 
-public class AaaaActivity extends Activity {
+public class MainActivity extends Activity {
   private MainView mainView;
   private PowerManager mPowerManager;
   private WakeLock mWakeLock;
