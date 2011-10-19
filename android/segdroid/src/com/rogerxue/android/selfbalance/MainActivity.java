@@ -2,7 +2,7 @@ package com.rogerxue.android.selfbalance;
 
 import java.util.ArrayList;
 
-import android.app.Activity;
+import android.app.TabActivity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -10,29 +10,49 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TabHost;
+import android.widget.TabHost.TabContentFactory;
+import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
-import com.rogerxue.android.selfbalance.module.DynamicPlotable2D;
+import com.rogerxue.android.selfbalance.model.DynamicPlotable2D;
 
-public class MainActivity extends Activity {
+public class MainActivity extends TabActivity {
   private MainView mainView;
   private PowerManager mPowerManager;
   private WakeLock mWakeLock;
   private InclineCalculator inclineCalculator;
+  private TabHost mTabHost;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setContentView(R.layout.main);
+    mTabHost = getTabHost();
 
+    
     mPowerManager = (PowerManager) getSystemService(POWER_SERVICE);
-
     mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, getClass()
       .getName());
-
     mainView = new MainView(this);
+    setupTab(mainView.mLinearLayout, "visualize");
+    setupTab(new TextView(this), "something");
+    mTabHost.setCurrentTab(0);
+    
+    
     inclineCalculator = new InclineCalculator(this);
     inclineCalculator.addObserver(mainView);
-    setContentView(mainView);
+  }
+
+  private void setupTab(final View view, final String tag) {
+    TabSpec spec = mTabHost.newTabSpec(tag).setIndicator(tag).setContent(new TabContentFactory() {
+
+      @Override
+      public View createTabContent(String tag) {
+        return view;
+      }
+    });
+    mTabHost.addTab(spec);
   }
 
   @Override
@@ -85,30 +105,30 @@ public class MainActivity extends Activity {
     }
 
     public void prepare() {
-      setContentView(mLinearLayout);
+//      set
     }
-    
+
     @Override
     public void onData() {
       data.add(new float[] {
-          inclineCalculator.getIncline()[0],
-          inclineCalculator.getIncline()[1],
-          inclineCalculator.getIncline()[2],
-          inclineCalculator.getInclineDerivative()[0],
-          inclineCalculator.getInclineDerivative()[1],
-          inclineCalculator.getInclineDerivative()[2]});
+                            inclineCalculator.getIncline()[0],
+                            inclineCalculator.getIncline()[1],
+                            inclineCalculator.getIncline()[2],
+                            inclineCalculator.getInclineDerivative()[0],
+                            inclineCalculator.getInclineDerivative()[1],
+                            inclineCalculator.getInclineDerivative()[2]});
       setContent(
-         inclineCalculator.getAccIncline()[0],
-         inclineCalculator.getAccIncline()[1],
-         inclineCalculator.getAccIncline()[2],
-         inclineCalculator.getIncline()[0],
-         inclineCalculator.getIncline()[1],
-         inclineCalculator.getIncline()[2]);
+        inclineCalculator.getAccIncline()[0],
+        inclineCalculator.getAccIncline()[1],
+        inclineCalculator.getAccIncline()[2],
+        inclineCalculator.getIncline()[0],
+        inclineCalculator.getIncline()[1],
+        inclineCalculator.getIncline()[2]);
       ecgView.invalidate();
     }
 
     private void setContent(float xAcc, float yAcc, float zAcc, float xGyro, float yGyro,
-         float zGyro) {
+                            float zGyro) {
       tv.setText(
         "X acc:" + xAcc + 
         "\nY acc:" + yAcc +

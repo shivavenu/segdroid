@@ -1,6 +1,6 @@
 package com.rogerxue.android.selfbalance;
 
-import com.rogerxue.android.selfbalance.module.DynamicPlotable2D;
+import com.rogerxue.android.selfbalance.model.DynamicPlotable2D;
 
 import android.content.Context;
 import android.graphics.Canvas;
