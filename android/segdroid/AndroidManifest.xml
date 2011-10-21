@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.rogerxue.android.selfbalance"
-      android:versionCode="1"
-      android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="10" />
+	package="com.rogerxue.android.selfbalance" android:versionCode="1"
+	android:versionName="1.0">
+	<uses-sdk android:minSdkVersion="13" android:targetSdkVersion="13" />
 
-    <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true">
-        <activity android:name=".MainActivity"
-                  android:label="@string/app_name"
-                  android:theme="@android:style/Theme.NoTitleBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-    </application>
-    <uses-sdk android:minSdkVersion="5"></uses-sdk>
+	<application android:icon="@drawable/icon" android:label="@string/app_name"
+	    android:theme="@android:style/Theme.NoTitleBar" android:debuggable="true">
+		<uses-library android:name="com.android.future.usb.accessory" />
+		<activity android:name=".MainActivity" android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+		<activity android:name="HelloAdkActivity" android:label="Hello ADK"
+			android:taskAffinity="" android:launchMode="singleInstance">
+			<intent-filter>
+				<action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
+			</intent-filter>
+			<meta-data android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+				android:resource="@xml/accessory_filter" />
+		</activity>
+	</application>
 	<uses-permission android:name="android.permission.VIBRATE"></uses-permission>
 	<uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
 </manifest>

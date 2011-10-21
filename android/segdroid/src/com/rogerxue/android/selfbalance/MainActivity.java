@@ -3,6 +3,7 @@ package com.rogerxue.android.selfbalance;
 import java.util.ArrayList;
 
 import android.app.TabActivity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -38,9 +39,9 @@ public class MainActivity extends TabActivity implements InclineCalculator.Obser
       .getName());
     setupMainView();
     setupTab(mLinearLayout, "visualize");
-    setupTab(new TextView(this), "something");
+    Intent intent = new Intent().setClass(this, HelloAdkActivity.class);
+    mTabHost.addTab(mTabHost.newTabSpec("helloAdk").setIndicator("hello ADK").setContent(intent));
     mTabHost.setCurrentTab(0);
-
     inclineCalculator = new InclineCalculator(this);
     inclineCalculator.addObserver(this);
   }
