@@ -17,22 +17,22 @@ import android.widget.TextView;
 import com.rogerxue.android.selfbalance.model.DynamicPlotable2D;
 
 public class MainActivity extends HelloAdkActivity implements OnClickListener, InclineCalculator.Observer{
-	TextView mVisualizeLabel;
-	TextView mSomeLabel;
-	LinearLayout mVisualizeContainer;
-	LinearLayout mSomeContainer;
-	Drawable mFocusedTabImage;
-	Drawable mNormalTabImage;
+	private TextView mVisualizeLabel;
+	private TextView mSomeLabel;
+	private LinearLayout mVisualizeContainer;
+	private LinearLayout mSomeContainer;
+	private Drawable mFocusedTabImage;
+	private Drawable mNormalTabImage;
 	
-	private static final int MAX = 470;
+	private int maxWidth;
 	private PowerManager mPowerManager;
 	private WakeLock mWakeLock;
-	private InclineCalculator inclineCalculator;
-	private ECGView ecgView;
-	private TextView tv;
-	DynamicPlotable2D data;
-	Timer graphicTimer;
-	TimerTask graphicTimerTask;
+	private InclineCalculator mInclineCalculator;
+	private ECGView mEcgView;
+	private TextView mTextView;
+	private DynamicPlotable2D data;
+	private Timer mGraphicTimer = new Timer();;
+	private TimerTask mGraphicTimerTask;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -42,18 +42,18 @@ public class MainActivity extends HelloAdkActivity implements OnClickListener, I
 				R.drawable.tab_normal_holo_dark);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-
+		maxWidth = getWindowManager().getDefaultDisplay().getWidth();
 		mPowerManager = (PowerManager) getSystemService(POWER_SERVICE);
 		mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, getClass()
 				.getName());
 		setupMainView();
 
-		inclineCalculator = new InclineCalculator(this);
-		inclineCalculator.addObserver(this);
-		graphicTimerTask = new TimerTask() {
+		mInclineCalculator = new InclineCalculator(this);
+		mInclineCalculator.addObserver(this);
+		mGraphicTimerTask = new TimerTask() {
 			public void run() {
-				ecgView.postInvalidate();
-				if (inclineCalculator.getIncline()[0] > 0) {
+				mEcgView.postInvalidate();
+				if (mInclineCalculator.getIncline()[0] > 0) {
 					sendCommand((byte)2, (byte)0, 255);
 				} else {
 					sendCommand((byte)2, (byte)0, 0);
@@ -87,18 +87,18 @@ public class MainActivity extends HelloAdkActivity implements OnClickListener, I
 		mWakeLock.acquire();
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-		inclineCalculator.start();
-		graphicTimer = new Timer();
-		graphicTimer.schedule(graphicTimerTask, 0, 10);
+		mInclineCalculator.start();
+		mGraphicTimer.schedule(mGraphicTimerTask, 0, 10);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		inclineCalculator.stop();
+		mInclineCalculator.stop();
 
 		// and release our wake-lock
 		mWakeLock.release();
+		mGraphicTimer.cancel();
 	}
 
 	private void setupMainView() {
@@ -115,11 +115,11 @@ public class MainActivity extends HelloAdkActivity implements OnClickListener, I
 		dataNames.add("inclineDerX");
 		dataNames.add("inclineDerY");
 		dataNames.add("inclineDerZ");
-		data = new DynamicPlotable2D(dataNames, MAX);
-		tv = new TextView(this);
-		ecgView = new ECGView(this, data, 10, 1, MAX, 400);
-		mVisualizeContainer.addView(tv);
-		mVisualizeContainer.addView(ecgView);
+		data = new DynamicPlotable2D(dataNames, maxWidth);
+		mTextView = new TextView(this);
+		mEcgView = new ECGView(this, data, 1, 1, maxWidth, 400);
+		mVisualizeContainer.addView(mTextView);
+		mVisualizeContainer.addView(mEcgView);
 	}
 
 	public void onClick(View v) {
@@ -137,7 +137,7 @@ public class MainActivity extends HelloAdkActivity implements OnClickListener, I
 
 	private void setContent(float xAcc, float yAcc, float zAcc, float xGyro, float yGyro,
 			float zGyro) {
-		tv.setText(
+		mTextView.setText(
 				"X acc:" + xAcc + 
 				"\nY acc:" + yAcc +
 				"\nZ acc:" + zAcc +
@@ -149,18 +149,18 @@ public class MainActivity extends HelloAdkActivity implements OnClickListener, I
 	@Override
 	public void onData() {
 		data.add(new float[] {
-				inclineCalculator.getIncline()[0],
-				inclineCalculator.getIncline()[1],
-				inclineCalculator.getIncline()[2],
-				inclineCalculator.getInclineDerivative()[0],
-				inclineCalculator.getInclineDerivative()[1],
-				inclineCalculator.getInclineDerivative()[2]});
+				mInclineCalculator.getIncline()[0],
+				mInclineCalculator.getIncline()[1],
+				mInclineCalculator.getIncline()[2],
+				mInclineCalculator.getInclineDerivative()[0],
+				mInclineCalculator.getInclineDerivative()[1],
+				mInclineCalculator.getInclineDerivative()[2]});
 		setContent(
-				inclineCalculator.getAccIncline()[0],
-				inclineCalculator.getAccIncline()[1],
-				inclineCalculator.getAccIncline()[2],
-				inclineCalculator.getIncline()[0],
-				inclineCalculator.getIncline()[1],
-				inclineCalculator.getIncline()[2]);
+				mInclineCalculator.getAccIncline()[0],
+				mInclineCalculator.getAccIncline()[1],
+				mInclineCalculator.getAccIncline()[2],
+				mInclineCalculator.getIncline()[0],
+				mInclineCalculator.getIncline()[1],
+				mInclineCalculator.getIncline()[2]);
 	}
 }
