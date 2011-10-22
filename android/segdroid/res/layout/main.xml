@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/tabhost"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:padding="5dp">
-        <TabWidget
-            android:id="@android:id/tabs"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
-        <FrameLayout
-            android:id="@android:id/tabcontent"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:padding="5dp" />
-    </LinearLayout>
-</TabHost>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent" android:layout_height="match_parent"
+	android:orientation="vertical">
+	<LinearLayout android:id="@+id/TabContainer"
+		android:layout_width="fill_parent" android:orientation="horizontal"
+		android:layout_height="48dip">
+		<TextView android:layout_width="wrap_content" android:id="@+id/VisualizeLabel"
+			android:text="Visualize" style="@style/DemoKitTextBase"
+			android:gravity="center" android:layout_weight="1"
+			android:background="@drawable/tab_focused_holo_dark"
+			android:clickable="true" android:layout_gravity="center"
+			android:layout_height="match_parent"></TextView>
+		<TextView android:text="some tab" android:id="@+id/SomeLabel"
+			android:layout_width="wrap_content" android:layout_height="match_parent"
+			style="@style/DemoKitTextBase" android:gravity="center"
+			android:layout_weight="1" android:layout_gravity="center"
+			android:clickable="true"></TextView>
+	</LinearLayout>
+	<FrameLayout android:layout_width="match_parent"
+		android:layout_height="wrap_content" android:orientation="vertical"
+		android:paddingLeft="10dip" android:paddingRight="10dip">
+		<include layout="@layout/visualize_container" android:id="@+id/VisualizeContainer"
+			android:layout_width="match_parent" android:layout_height="wrap_content" />
+		<include layout="@layout/empty_container" android:id="@+id/SomeContainer"
+			android:layout_width="match_parent" android:layout_height="wrap_content" />
+	</FrameLayout>
+</LinearLayout>

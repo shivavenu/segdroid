@@ -14,9 +14,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
@@ -72,16 +69,6 @@ public class HelloAdkActivity extends Activity {
     //          mAccessory = (UsbAccessory) getLastNonConfigurationInstance();
     //          openAccessory(mAccessory);
     //      }
-    Button b = new Button(this);
-    b.setText("Flash");
-    b.setOnClickListener(new OnClickListener() {
-
-      @Override
-      public void onClick(View v) {
-        //TODO
-      }
-    });
-    setContentView(new Button(this));
   }
 
   @Override
