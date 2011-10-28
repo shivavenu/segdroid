@@ -7,6 +7,7 @@ import java.util.TimerTask;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.view.View;
@@ -30,6 +31,7 @@ public class MainActivity extends HelloAdkActivity implements OnClickListener, I
 	private InclineCalculator mInclineCalculator;
 	private ECGView mEcgView;
 	private TextView mTextView;
+	private TextView mButtonView;
 	private DynamicPlotable2D data;
 	private Timer mGraphicTimer = new Timer();;
 	private TimerTask mGraphicTimerTask;
@@ -117,7 +119,10 @@ public class MainActivity extends HelloAdkActivity implements OnClickListener, I
 		dataNames.add("inclineDerZ");
 		data = new DynamicPlotable2D(dataNames, maxWidth);
 		mTextView = new TextView(this);
+		mButtonView = new TextView(this);
+		mButtonView.setText("button");
 		mEcgView = new ECGView(this, data, 1, 1, maxWidth, 400);
+		mVisualizeContainer.addView(mButtonView);
 		mVisualizeContainer.addView(mTextView);
 		mVisualizeContainer.addView(mEcgView);
 	}
@@ -162,5 +167,10 @@ public class MainActivity extends HelloAdkActivity implements OnClickListener, I
 				mInclineCalculator.getIncline()[0],
 				mInclineCalculator.getIncline()[1],
 				mInclineCalculator.getIncline()[2]);
+	}
+
+	@Override
+	protected void handleButton1(Message message) {
+		mButtonView.setText("button: " + (String)(message.obj));
 	}
 }
