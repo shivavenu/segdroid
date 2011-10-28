@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import com.rogerxue.android.selfbalance.model.DynamicPlotable2D;
 
-public class MainActivity extends HelloAdkActivity implements OnClickListener, InclineCalculator.Observer{
+public class MainActivity extends HelloAdkActivity implements OnClickListener, InclineCalculator.Observer {
 	private TextView mVisualizeLabel;
 	private TextView mSomeLabel;
 	private LinearLayout mVisualizeContainer;
