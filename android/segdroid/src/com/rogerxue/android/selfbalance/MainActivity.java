@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.rogerxue.android.selfbalance.model.DynamicPlotable2D;
 
-public class MainActivity extends HelloAdkActivity implements OnClickListener, InclineCalculator.Observer {
+public class MainActivity extends BasicAdkActivity implements OnClickListener, InclineCalculator.Observer {
 	private TextView mVisualizeLabel;
 	private TextView mSomeLabel;
 	private LinearLayout mVisualizeContainer;
@@ -30,9 +30,9 @@ public class MainActivity extends HelloAdkActivity implements OnClickListener, I
 	private WakeLock mWakeLock;
 	private InclineCalculator mInclineCalculator;
 	private ECGView mEcgView;
-	private TextView mTextView;
+//	private TextView mTextView;
 	private TextView mButtonView;
-	private DynamicPlotable2D data;
+	private DynamicPlotable2D mData;
 	private Timer mGraphicTimer = new Timer();;
 	private TimerTask mGraphicTimerTask;
 
@@ -106,25 +106,26 @@ public class MainActivity extends HelloAdkActivity implements OnClickListener, I
 	private void setupMainView() {
 		mVisualizeLabel = (TextView) findViewById(R.id.VisualizeLabel);
 		mSomeLabel = (TextView) findViewById(R.id.SomeLabel);
-		mVisualizeContainer = (LinearLayout) findViewById(R.id.VisualizeContainer);
+//		mVisualizeContainer = (LinearLayout) findViewById(R.id.VisualizeContainer);
 		mSomeContainer = (LinearLayout) findViewById(R.id.SomeContainer);
 		mVisualizeLabel.setOnClickListener(this);
 		mSomeLabel.setOnClickListener(this);
-		ArrayList<String> dataNames = new ArrayList<String>();
-		dataNames.add("inclineX");
-		dataNames.add("inclineY");
-		dataNames.add("inlcineZ");
-		dataNames.add("inclineDerX");
-		dataNames.add("inclineDerY");
-		dataNames.add("inclineDerZ");
-		data = new DynamicPlotable2D(dataNames, maxWidth);
-		mTextView = new TextView(this);
+//		mTextView = new TextView(this);
 		mButtonView = new TextView(this);
 		mButtonView.setText("button");
-		mEcgView = new ECGView(this, data, 1, 1, maxWidth, 400);
-		mVisualizeContainer.addView(mButtonView);
-		mVisualizeContainer.addView(mTextView);
-		mVisualizeContainer.addView(mEcgView);
+		getEcgView();
+//		mVisualizeContainer.addView(mButtonView);
+//		mVisualizeContainer.addView(mTextView);
+		((LinearLayout) findViewById(R.id.sensorGraph)).addView(mEcgView);
+	}
+	
+	private void getEcgView() {
+		ArrayList<String> dataNames = new ArrayList<String>();
+		dataNames.add("inclineY");
+		dataNames.add("GyroY");
+		dataNames.add("GyroZ");
+		mData = new DynamicPlotable2D(dataNames, maxWidth);
+		mEcgView = new ECGView(this, mData, 1, 1, maxWidth, 200); 
 	}
 
 	public void onClick(View v) {
@@ -140,33 +141,30 @@ public class MainActivity extends HelloAdkActivity implements OnClickListener, I
 		}
 	}
 
-	private void setContent(float xAcc, float yAcc, float zAcc, float xGyro, float yGyro,
-			float zGyro) {
-		mTextView.setText(
-				"X acc:" + xAcc + 
-				"\nY acc:" + yAcc +
-				"\nZ acc:" + zAcc +
-				"\nX gyr:" + xGyro + 
-				"\nY gyr:" + yGyro + 
-				"\nZ gyr:" + zGyro);
-	}
+//	private void setContent(float xAcc, float yAcc, float zAcc, float xGyro, float yGyro,
+//			float zGyro) {
+//		mTextView.setText(
+//				"X acc:" + xAcc + 
+//				"\nY acc:" + yAcc +
+//				"\nZ acc:" + zAcc +
+//				"\nX gyr:" + xGyro + 
+//				"\nY gyr:" + yGyro + 
+//				"\nZ gyr:" + zGyro);
+//	}
 
 	@Override
 	public void onData() {
-		data.add(new float[] {
-				mInclineCalculator.getIncline()[0],
+		mData.add(new float[] {
 				mInclineCalculator.getIncline()[1],
-				mInclineCalculator.getIncline()[2],
-				mInclineCalculator.getInclineDerivative()[0],
-				mInclineCalculator.getInclineDerivative()[1],
-				mInclineCalculator.getInclineDerivative()[2]});
-		setContent(
-				mInclineCalculator.getAccIncline()[0],
-				mInclineCalculator.getAccIncline()[1],
-				mInclineCalculator.getAccIncline()[2],
-				mInclineCalculator.getIncline()[0],
-				mInclineCalculator.getIncline()[1],
-				mInclineCalculator.getIncline()[2]);
+				- mInclineCalculator.getGyroInclineDerivative()[0] * 20,
+				mInclineCalculator.getGyroInclineDerivative()[2] * 20});
+//		setContent(
+//				mInclineCalculator.getAccIncline()[0],
+//				mInclineCalculator.getAccIncline()[1],
+//				mInclineCalculator.getAccIncline()[2],
+//				mInclineCalculator.getIncline()[0],
+//				mInclineCalculator.getIncline()[1],
+//				mInclineCalculator.getIncline()[2]);
 	}
 
 	@Override

@@ -25,6 +25,11 @@ public final class R {
         public static final int TabContainer=0x7f080000;
         public static final int VisualizeContainer=0x7f080003;
         public static final int VisualizeLabel=0x7f080001;
+        public static final int motorCommand=0x7f080009;
+        public static final int paramD=0x7f080008;
+        public static final int paramI=0x7f080007;
+        public static final int paramP=0x7f080006;
+        public static final int sensorGraph=0x7f080005;
     }
     public static final class layout {
         public static final int empty_container=0x7f030000;

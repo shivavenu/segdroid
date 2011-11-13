@@ -31,8 +31,7 @@ public class InclineCalculator implements SensorEventListener {
   private float[] mAccIncline = new float[3];
   private float[] mGyroIncline = new float[3];
 
-  private float[] mPreviousIncline = new float[3];
-  private float[] mInclineDerivative = new float[3];
+  private float[] mGyroInclineDerivative = new float[3];
   private float[] mIncline = new float[3];
 
   public InclineCalculator(Context context) {
@@ -89,8 +88,11 @@ public class InclineCalculator implements SensorEventListener {
 
   private void calculateGyroIncline() {
     for (int i = 0; i < 3; ++i) {
-      mGyroIncline[i] = mIncline[i] + mGyroSensor[i] * mDeltaTime / NANO_IN_SEC;
+      mGyroInclineDerivative[i] = mGyroSensor[i] * mDeltaTime / NANO_IN_SEC;
     }
+    mGyroIncline[0] = mIncline[0] - mGyroInclineDerivative[1];
+    mGyroIncline[1] = mIncline[1] - mGyroInclineDerivative[0];
+    mGyroIncline[2] = mIncline[2] + mGyroInclineDerivative[2];
   }
 
   private void calculateAccIncline() {
@@ -103,9 +105,8 @@ public class InclineCalculator implements SensorEventListener {
   private void calculateIncline() {
     float complementaryFilter = 0.88F;
     for (int i = 0; i < 3; ++i) {
-      mPreviousIncline[i] = mIncline[i];
       mIncline[i] = mAccIncline[i] * (1 - complementaryFilter) + mGyroIncline[i] * complementaryFilter;
-      mInclineDerivative[i] = (mIncline[i] - mPreviousIncline[i]) / mDeltaTime * NANO_IN_SEC;
+//      mInclineDerivative[i] = (mIncline[i] - mPreviousIncline[i]) / mDeltaTime * NANO_IN_SEC;
     }
   }
 
@@ -129,7 +130,11 @@ public class InclineCalculator implements SensorEventListener {
     return mIncline;
   }
 
-  public float[] getInclineDerivative() {
-    return mInclineDerivative;
+  public float[] getGyroInclineDerivative() {
+	return mGyroInclineDerivative;
   }
+
+//  public float[] getInclineDerivative() {
+//    return mInclineDerivative;
+//  }
 }

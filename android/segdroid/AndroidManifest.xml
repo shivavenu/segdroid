@@ -18,7 +18,7 @@
 			<meta-data android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
 				android:resource="@xml/accessory_filter" />
 		</activity>
-		<activity android:name="HelloAdkActivity" android:label="Hello ADK"
+		<activity android:name=".BasicAdkActivity" android:label="Hello ADK"
 			android:taskAffinity="" android:launchMode="singleInstance">
 		</activity>
 	</application>
