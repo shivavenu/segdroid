@@ -7,17 +7,22 @@ import java.util.TimerTask;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.rogerxue.android.selfbalance.model.DynamicPlotable2D;
+import com.rogerxue.android.selfbalance.model.MotorCommand;
 
 public class MainActivity extends BasicAdkActivity implements OnClickListener, InclineCalculator.Observer {
+	private PIDController pidController = new PIDController(300.0, 0.0, 5000.0);
+	
 	private TextView mVisualizeLabel;
 	private TextView mSomeLabel;
 	private LinearLayout mVisualizeContainer;
@@ -30,8 +35,7 @@ public class MainActivity extends BasicAdkActivity implements OnClickListener, I
 	private WakeLock mWakeLock;
 	private InclineCalculator mInclineCalculator;
 	private ECGView mEcgView;
-//	private TextView mTextView;
-	private TextView mButtonView;
+	private TextView mTextView;
 	private DynamicPlotable2D mData;
 	private Timer mGraphicTimer = new Timer();;
 	private TimerTask mGraphicTimerTask;
@@ -49,17 +53,12 @@ public class MainActivity extends BasicAdkActivity implements OnClickListener, I
 		mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, getClass()
 				.getName());
 		setupMainView();
-
+		
 		mInclineCalculator = new InclineCalculator(this);
 		mInclineCalculator.addObserver(this);
 		mGraphicTimerTask = new TimerTask() {
 			public void run() {
 				mEcgView.postInvalidate();
-				if (mInclineCalculator.getIncline()[0] > 0) {
-					sendCommand((byte)2, (byte)0, 255);
-				} else {
-					sendCommand((byte)2, (byte)0, 0);
-				}
 			}
 		};
 	}
@@ -106,17 +105,34 @@ public class MainActivity extends BasicAdkActivity implements OnClickListener, I
 	private void setupMainView() {
 		mVisualizeLabel = (TextView) findViewById(R.id.VisualizeLabel);
 		mSomeLabel = (TextView) findViewById(R.id.SomeLabel);
-//		mVisualizeContainer = (LinearLayout) findViewById(R.id.VisualizeContainer);
 		mSomeContainer = (LinearLayout) findViewById(R.id.SomeContainer);
 		mVisualizeLabel.setOnClickListener(this);
 		mSomeLabel.setOnClickListener(this);
-//		mTextView = new TextView(this);
-		mButtonView = new TextView(this);
-		mButtonView.setText("button");
+		mTextView = new TextView(this);
 		getEcgView();
-//		mVisualizeContainer.addView(mButtonView);
-//		mVisualizeContainer.addView(mTextView);
+		
+		final EditText pEdit = (EditText) findViewById(R.id.paramP);
+		pEdit.setText(Double.toString(pidController.getParamP()));
+		pEdit.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				pidController.setParamP(Double.parseDouble(pEdit.getText().toString()));
+				return true;
+			}
+		});
+		
+		final EditText dEdit = (EditText) findViewById(R.id.paramD);
+		dEdit.setText(Double.toString(pidController.getParamD()));
+		dEdit.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				pidController.setParamD(Double.parseDouble(dEdit.getText().toString()));
+				return true;
+			}
+		});
+		
 		((LinearLayout) findViewById(R.id.sensorGraph)).addView(mEcgView);
+		((LinearLayout) findViewById(R.id.motorCommand)).addView(mTextView);
 	}
 	
 	private void getEcgView() {
@@ -141,34 +157,14 @@ public class MainActivity extends BasicAdkActivity implements OnClickListener, I
 		}
 	}
 
-//	private void setContent(float xAcc, float yAcc, float zAcc, float xGyro, float yGyro,
-//			float zGyro) {
-//		mTextView.setText(
-//				"X acc:" + xAcc + 
-//				"\nY acc:" + yAcc +
-//				"\nZ acc:" + zAcc +
-//				"\nX gyr:" + xGyro + 
-//				"\nY gyr:" + yGyro + 
-//				"\nZ gyr:" + zGyro);
-//	}
-
 	@Override
 	public void onData() {
 		mData.add(new float[] {
 				mInclineCalculator.getIncline()[1],
 				- mInclineCalculator.getGyroInclineDerivative()[0] * 20,
 				mInclineCalculator.getGyroInclineDerivative()[2] * 20});
-//		setContent(
-//				mInclineCalculator.getAccIncline()[0],
-//				mInclineCalculator.getAccIncline()[1],
-//				mInclineCalculator.getAccIncline()[2],
-//				mInclineCalculator.getIncline()[0],
-//				mInclineCalculator.getIncline()[1],
-//				mInclineCalculator.getIncline()[2]);
-	}
-
-	@Override
-	protected void handleButton1(Message message) {
-		mButtonView.setText("button: " + (String)(message.obj));
+		MotorCommand command = pidController.calculateMotorCommand(mInclineCalculator.getIncline()[1], 0, -mInclineCalculator.getGyroInclineDerivative()[0]);
+		sendCommand((byte)0, command.speed, command.turn);
+		mTextView.setText("speed: " + command.speed);
 	}
 }
