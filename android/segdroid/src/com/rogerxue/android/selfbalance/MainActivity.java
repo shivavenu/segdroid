@@ -21,7 +21,9 @@ import com.rogerxue.android.selfbalance.model.DynamicPlotable2D;
 import com.rogerxue.android.selfbalance.model.MotorCommand;
 
 public class MainActivity extends BasicAdkActivity implements OnClickListener, InclineCalculator.Observer {
-	private PIDController pidController = new PIDController(300.0, 0.0, 5000.0);
+	private static final byte MD49_COMMAND = 0;
+	private MotorCommand command;
+	private PIDController pidController;
 	
 	private TextView mVisualizeLabel;
 	private TextView mSomeLabel;
@@ -35,6 +37,7 @@ public class MainActivity extends BasicAdkActivity implements OnClickListener, I
 	private WakeLock mWakeLock;
 	private InclineCalculator mInclineCalculator;
 	private ECGView mEcgView;
+	private CrossBarView mCrossBarView;
 	private TextView mTextView;
 	private DynamicPlotable2D mData;
 	private Timer mGraphicTimer = new Timer();;
@@ -42,6 +45,8 @@ public class MainActivity extends BasicAdkActivity implements OnClickListener, I
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		command = new MotorCommand((byte)0, (byte)0);
+		pidController = new PIDController(300, 0, 5000, command);
 		mFocusedTabImage = getResources().getDrawable(
 				R.drawable.tab_focused_holo_dark);
 		mNormalTabImage = getResources().getDrawable(
@@ -59,6 +64,7 @@ public class MainActivity extends BasicAdkActivity implements OnClickListener, I
 		mGraphicTimerTask = new TimerTask() {
 			public void run() {
 				mEcgView.postInvalidate();
+				mCrossBarView.postInvalidate();
 			}
 		};
 	}
@@ -110,6 +116,7 @@ public class MainActivity extends BasicAdkActivity implements OnClickListener, I
 		mSomeLabel.setOnClickListener(this);
 		mTextView = new TextView(this);
 		getEcgView();
+		mCrossBarView = new CrossBarView(this, 1, 1, 200, 200, command);
 		
 		final EditText pEdit = (EditText) findViewById(R.id.paramP);
 		pEdit.setText(Double.toString(pidController.getParamP()));
@@ -132,7 +139,8 @@ public class MainActivity extends BasicAdkActivity implements OnClickListener, I
 		});
 		
 		((LinearLayout) findViewById(R.id.sensorGraph)).addView(mEcgView);
-		((LinearLayout) findViewById(R.id.motorCommand)).addView(mTextView);
+		((LinearLayout) findViewById(R.id.motorCommand)).addView(mCrossBarView);
+//		((LinearLayout) findViewById(R.id.motorCommand)).addView(mTextView);
 	}
 	
 	private void getEcgView() {
@@ -163,8 +171,8 @@ public class MainActivity extends BasicAdkActivity implements OnClickListener, I
 				mInclineCalculator.getIncline()[1],
 				- mInclineCalculator.getGyroInclineDerivative()[0] * 20,
 				mInclineCalculator.getGyroInclineDerivative()[2] * 20});
-		MotorCommand command = pidController.calculateMotorCommand(mInclineCalculator.getIncline()[1], 0, -mInclineCalculator.getGyroInclineDerivative()[0]);
-		sendCommand((byte)0, command.speed, command.turn);
+		pidController.calculateMotorCommand(mInclineCalculator.getIncline()[1], 0, -mInclineCalculator.getGyroInclineDerivative()[0]);
+		sendCommand(MD49_COMMAND, command.speed, command.turn);
 		mTextView.setText("speed: " + command.speed);
 	}
 }

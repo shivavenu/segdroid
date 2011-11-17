@@ -8,23 +8,26 @@ import com.rogerxue.android.selfbalance.model.MotorCommand;
  * @author rogerxue
  */
 public class PIDController {
+	private MotorCommand command;
 	private double paramP = 0;
 	private double paramI = 0;
 	private double paramD = 0;
 
-	public PIDController(double p, double i, double d) {
+	public PIDController(double p, double i, double d, MotorCommand command) {
+		this.command = command;
 		paramP = p;
 		paramI = i;
 		paramD = d;
 	}
 
 	// TODO: calculate speed only for now, add turn support later.
-	public MotorCommand calculateMotorCommand(double error, double errorInte, double errorDri) {
+	public void calculateMotorCommand(double error, double errorInte, double errorDri) {
 		double loopFeedback = paramP * error + paramI * errorInte + paramD * errorDri;
 		byte speed = regulate(loopFeedback);
-		return new MotorCommand(speed, (byte)0);
+		command.speed = speed;
+		command.turn = (byte)0;
 	}
-
+	
 	private byte regulate(double input) {
 		if (input >= 127) {
 			return (byte) 127;
